@@ -6,9 +6,12 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 
+import java.util.ArrayList;
+
 public class Player extends Service {
 
     MediaPlayer mp;
+    ArrayList<String> trackPath; // Store the actual directory in order to play without activity
 
     public Player() {
         mp = new MediaPlayer();
@@ -56,5 +59,9 @@ public class Player extends Service {
 
     void seekTo(){
         // TODO
+    }
+
+    void setTrackPath(){
+
     }
 }
