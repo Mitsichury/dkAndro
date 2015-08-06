@@ -1,28 +1,23 @@
-package com.example.mitsichury.simplemp3player;
+package com.example.mitsichury.mp3player;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.gesture.GestureOverlayView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -36,9 +31,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mitsichury.simplemp3player.R;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -64,18 +60,17 @@ public class MainActivity extends Activity {
     int idTrack;
     Handler handler;
     Runnable time;
-    MediaPlayer mp;
     ListView lv_musicTrackList;
     File file;
     String actualPath;
     TextView tv_actualPath;
     ArrayAdapter<String> mAdapter;
-    Boolean randomTrack;
-    Boolean replay;
+
     Random r;
     MediaMetadataRetriever mmr = new MediaMetadataRetriever();
     InputStream is;
     Bitmap bm;
+    NumberFormat formatter = new DecimalFormat("00");
 
     String pathImageThumb;
     String title;
@@ -85,6 +80,38 @@ public class MainActivity extends Activity {
 
     /*New Variables*/
     Player player; //  The service Player
+    BroadcastReceiver receiver;
+    Intent intentService;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Player.MyBinder mb = (Player.MyBinder)service;
+            player = mb.getPlayer();
+            player.init();
+
+            // Explorer
+            /*actualPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            printDirectory();
+
+            idTrack = player.getActualTrack();
+            invalidate();*/
+
+            actualPath = player.getCurrentPath();
+            idTrack = player.getActualTrack();
+            printDirectory();
+            invalidate();
+            seekbar.setProgress(player.getCurrentPosition());
+
+            Toast.makeText(getApplicationContext(), "Player connected", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            player = null;
+            Toast.makeText(getApplicationContext(), "Player disconnected", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,13 +119,11 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         //Link to the player service
-        Intent i = new Intent(this, Player.class);
-        bindService(i, connection, Context.BIND_AUTO_CREATE);
+        intentService = new Intent(this, Player.class);
+        bindService(intentService, connection, Context.BIND_AUTO_CREATE);
 
         listTrack = new ArrayList<String>();
         listTrackPath = new ArrayList<String>();
-        randomTrack = false;
-        replay = false;
         r = new Random();
 
         // Link to views in layout
@@ -120,7 +145,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 File tmp = file.getParentFile();
-                if(tmp != null){
+                if (tmp != null) {
                     actualPath = tmp.getAbsolutePath();
                 }
                 printDirectory();
@@ -137,31 +162,27 @@ public class MainActivity extends Activity {
         lv_musicTrackList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                position = position -1;
+                position = position - 1;
                 if (new File(listTrackPath.get(position)).isDirectory()) {
                     actualPath = listTrackPath.get(position);
                     printDirectory();
                 } else {
+                    if(player.getCurrentPath() != actualPath){player.setTrackPath(listTrackPath, actualPath);}
                     idTrack = position;
-                    playMusic();
+                    player.setTrackChange(idTrack);
+                    invalidate();
                 }
             }
         });
-
-        // Explorer
-        actualPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        printDirectory();
-
-        idTrack = 0;
-
-        // Make Player
-        mp = null;//new MediaPlayer();
 
         // Listeners
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser){mp.seekTo(seekBar.getProgress());tv_position.setText(m2s(progress));}
+                if (fromUser) {
+                    player.seekTo(seekBar.getProgress());
+                    tv_position.setText(m2s(progress));
+                }
             }
 
             @Override
@@ -171,7 +192,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mp.seekTo(seekBar.getProgress());
+                player.seekTo(seekBar.getProgress());
                 handler.postDelayed(time, 100);
             }
         });
@@ -180,7 +201,7 @@ public class MainActivity extends Activity {
         imgBt_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mp.isPlaying()) {
+                if (player.isPlaying()) {
                     pause();
                 } else {
                     play();
@@ -191,7 +212,7 @@ public class MainActivity extends Activity {
         imgBt_backward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                back();
+                previous();
             }
         });
 
@@ -205,12 +226,14 @@ public class MainActivity extends Activity {
         imgBt_random.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(randomTrack){
-                    randomTrack=false;
+                if(player.isRandom()){
+                    //randomTrack=false;
+                    player.setRandom(false);
                     imgBt_random.setBackgroundColor(0xFFD6D7D7);
                 }
                 else{
-                    randomTrack=true;
+                    //randomTrack=true;
+                    player.setRandom(true);
                     imgBt_random.setBackgroundColor(0xFF000000);
                 }
             }
@@ -219,12 +242,13 @@ public class MainActivity extends Activity {
         imgBt_replay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(replay){
-                    replay=false;
+                if (player.isReplay()) {
+                    //replay=false;
+                    player.setReplay(false);
                     imgBt_replay.setBackgroundColor(0xFFD6D7D7);
-                }
-                else {
-                    replay=true;
+                } else {
+                    //replay=true;
+                    player.setReplay(true);
                     imgBt_replay.setBackgroundColor(0xFF000000);
                 }
             }
@@ -246,10 +270,9 @@ public class MainActivity extends Activity {
                         next();
                         Log.i("EVENT", "NEXT");
                     }else if(delta>0 && Math.abs(delta)> 20){
-                        back();
+                        previous();
                     }else {
-                        if(mp.isPlaying()){pause();}
-                        else {play();}
+                        if(player.isPlaying()){pause();} else {play();}
                     }
                 }
                 return true;
@@ -262,28 +285,36 @@ public class MainActivity extends Activity {
         time = new Runnable(){
             @Override
             public void run() {
-                tv_position.setText(m2s(mp.getCurrentPosition()));
-                seekbar.setProgress(mp.getCurrentPosition());
+                int curPos = player.getCurrentPosition();
+                tv_position.setText(m2s(curPos));
+                seekbar.setProgress(curPos);
                 handler.postDelayed(this, 100);
             }
         };
 
-        playMusic();
+        // Receiver from the service
+         receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String s = intent.getStringExtra(Player.PLAYER_MESSAGE);
+                idTrack = player.getActualTrack();
+                invalidate();
+            }
+        };
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver),
+                new IntentFilter(Player.PLAYER_RESULT)
+        );
     }
 
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Player.MyBinder mb = (Player.MyBinder)service;
-            player = mb.getPlayer();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            player = null;
-            Toast.makeText(getApplicationContext(), "Player disconnected", Toast.LENGTH_SHORT).show();
-        }
-    };
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onStop();
+    }
 
     void printDirectory(){
         listTrack.clear();
@@ -315,113 +346,84 @@ public class MainActivity extends Activity {
     }
 
     void info(){
-        tv_duration.setText(m2s(mp.getDuration()));
+        tv_duration.setText(m2s(player.getDuration()));
         if(title==null){tv_title.setText(listTrack.get(idTrack));}
         else{tv_title.setText(title);}
-        seekbar.setMax(mp.getDuration());
+        seekbar.setMax(player.getDuration());
         handler.postDelayed(time, 100);
     }
 
-    private void playMusic(){
-        if(mp == null){
-            mp = new MediaPlayer();
-            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    if(!replay){next();}
-                    else{playMusic();}
-                }
-            });
-            next();
-            pause();
-            return;
-        }
+    /**
+     *  The method try to get the picture and informations about the song and display them
+     */
+    private void invalidate(){
+
         if(listTrackPath.size()>0){
-            mp.stop();
-            mp.reset();
 
-            try {
-                if(pathImageThumb!=null) {
-                    imgView.setImageURI(Uri.parse(pathImageThumb));
-                }else{
-                    imgView.setImageResource(R.drawable.play);
-                }
-
-                mmr.setDataSource(listTrackPath.get(idTrack));
-                title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-
-                byte[] artBytes = mmr.getEmbeddedPicture();
-
-                if(artBytes != null)
-                {
-                    is = new ByteArrayInputStream(mmr.getEmbeddedPicture());
-                    bm = BitmapFactory.decodeStream(is);
-                    imgView.setImageBitmap(bm);
-                }else {
-                    imgView.setImageResource(R.drawable.play);
-                }
-
-                mp.setDataSource(getApplicationContext(), Uri.parse(listTrackPath.get(idTrack)));
-                mp.prepare();
-                mp.start();
-                info();
-                imgBt_pause.setImageResource(Resources.getSystem().getIdentifier("ic_media_pause", "drawable", "android"));
-            } catch (IOException e) {
-                Toast.makeText(getApplicationContext(), "Cannot load the music at " + listTrackPath.get(idTrack), Toast.LENGTH_LONG).show();
-                e.getStackTrace();
+            if(pathImageThumb!=null) {
+                imgView.setImageURI(Uri.parse(pathImageThumb));
+            }else{
+                imgView.setImageResource(R.drawable.play);
             }
-        }else {
-            Toast.makeText(getApplicationContext(), "No music found !", Toast.LENGTH_SHORT).show();
+
+            mmr.setDataSource(listTrackPath.get(idTrack));
+            title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+
+            byte[] artBytes = mmr.getEmbeddedPicture();
+
+            if(artBytes != null)
+            {
+                is = new ByteArrayInputStream(mmr.getEmbeddedPicture());
+                bm = BitmapFactory.decodeStream(is);
+                imgView.setImageBitmap(bm);
+            }else {
+                imgView.setImageResource(R.drawable.play);
+            }
+
+            info();
+            imgBt_pause.setImageResource(Resources.getSystem().getIdentifier("ic_media_pause", "drawable", "android"));
+
         }
     }
 
+    //TODO
     void next(){
-        if(randomTrack){idTrack+=r.nextInt(listTrack.size());}
-        do{
-            idTrack+=1;
-            if (idTrack >= listTrack.size()) {
-                idTrack = 0;
-            }
-        }while(new File(listTrackPath.get(idTrack)).isDirectory());
-
-        playMusic();
+        player.next();
+        idTrack = player.getActualTrack();
+        invalidate();
     }
 
-    void back(){
-        do{
-            idTrack-=1;
-            if (idTrack < 0) {
-                idTrack = listTrackPath.size()-1;
-            }
-        }while(new File(listTrackPath.get(idTrack)).isDirectory());
-
-        playMusic();
+    void previous(){
+        player.previous();
+        idTrack = player.getActualTrack();
+        invalidate();
     }
 
     void play(){
-        mp.start();
+        player.play();
+        invalidate();
         imgBt_pause.setImageResource(Resources.getSystem().getIdentifier("ic_media_pause", "drawable", "android"));
     }
 
     void pause(){
-        mp.pause();
+        player.pause();
+        invalidate();
         imgBt_pause.setImageResource(Resources.getSystem().getIdentifier("ic_media_play", "drawable", "android"));
     }
 
     private String m2s(int duration) {
-        NumberFormat formatter = new DecimalFormat("00");
         int sec = duration/1000;
         int min = sec/60;
         sec=sec%60;
-
 
         return String.valueOf(min)+":"+String.valueOf(formatter.format(sec));
     }
 
     @Override
     protected void onDestroy() {
+        handler.removeCallbacks(time);
+        player.saveSharedPreferences();
         super.onDestroy();
-        pause();
     }
 
     @Override
