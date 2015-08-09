@@ -1,3 +1,10 @@
+TREE
+MainActivity charge and display data
+ExpandableListAdapter adapter of the expandable listview (link with header)
+Header, Object which contains all the data of a event (and also its dl async class)
+AsyncDL -> NOTHING JUST A TEST
+ParseXML, the downloader and the parser os xml file
+
 Alpha 1.0
 Expandable listview OK
 Dl XML + PARSE OK
