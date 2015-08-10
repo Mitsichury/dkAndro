@@ -15,16 +15,21 @@ Launch picture OK
 Asynchronous dl of thumbnails OK
 Rotation screen NOT OK
 Sort by event date OK
+Sort by release information No
 
+Alpha 3.0
+onSavedInstanceState when quit FIX
+Rotation screen FIX
+Sort by release information OK
+App freeze at start up (need to rewrite XML parse in AsyncTask) Fix but strangely for now
+Problem with XML <pubDate> need to rewrite XML parse FIX
 
 PROBLEMS
-onSavedInstanceState when quit FIX
-App freeze at start up (need to rewrite XML parse in AsyncTask)
-Probleme with XML <pubDate> need to rewrite XML parse
+Detect Number phone and make a link
+Add to book button +/-
 
 Need To implement
 Instant search
-Sort by release information
-Add to book button
 display price or at least a link button
+
 
