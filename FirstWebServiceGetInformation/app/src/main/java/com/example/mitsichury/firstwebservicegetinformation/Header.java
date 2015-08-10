@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -75,7 +76,7 @@ public class Header implements Parcelable{
     public Header(String title, String date, String linkToImage, String childDescription, String linkToPage, String dateParution) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
-        //SimpleDateFormat formaterDatePub = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        SimpleDateFormat formaterDatePub = new SimpleDateFormat("yyyy-MM-dd");
 
         Date dateTmp = null;
         try {
@@ -87,17 +88,23 @@ public class Header implements Parcelable{
         this.date = dateTmp;
         this.linkToImage = linkToImage;
         this.childDescription = childDescription;
-        Log.i("TITLE", childDescription.toString());
+        //Log.i("TITLE", childDescription.toString());
         this.linkToPage = linkToPage;
         startDlThumb();
 
-        /*dateTmp = null;
-        try {
-            dateTmp = formaterDatePub.parse(dateParution);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        dateTmp = null;
+        if (dateParution != null) {
+            try {
+                dateTmp = formaterDatePub.parse(dateParution);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }else {
+            dateTmp = Calendar.getInstance().getTime();
         }
-        this.dateParution = dateTmp;*/
+
+        this.dateParution = dateTmp;
+        Log.i("DATE-PARU", String.valueOf(this.dateParution)+ " " + dateParution);
     }
 
     public String getChildDescription() {
@@ -153,7 +160,7 @@ public class Header implements Parcelable{
         dest.writeString(linkToPage);
         dest.writeString(title);
         dest.writeValue(image);
-        
+
         dest.writeValue(date);
     }
 

@@ -17,6 +17,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by MITSICHURY on 07/08/2015.
@@ -46,9 +48,12 @@ public class ParserXML {
         String text = null;
 
         try {
+            while (myParser.getName()==null || !myParser.getName().equals("item")){myParser.next();}
             event = myParser.getEventType();
+
             while (event != XmlPullParser.END_DOCUMENT) {
                 String name = myParser.getName();
+
                 switch (event) {
                     case XmlPullParser.START_TAG:
                         break;
@@ -58,6 +63,7 @@ public class ParserXML {
                         break;
 
                     case XmlPullParser.END_TAG:
+                        //Log.i("parseName", name);
                         if (name.equals("title")) {
                             title = text;
                         } else if (name.equals("link")) {
@@ -66,15 +72,22 @@ public class ParserXML {
                             description = text;
                         } else if(name.equals("pubDate")) {
                             date = text;
-                            Log.i("Date", ""+(date==null));
                         }
                         break;
                 }
 
                 event = myParser.next();
                 if(title != null && description!= null){
-                    Log.i("Date", ""+(date==null));
+                    Log.i("parseName", title + " " + link);
                     Log.i("description", description);
+                    /*Pattern p = Pattern.compile("([0-9]{2}[ .-]){4}[0-9]{2}");
+
+                    Matcher m = p.matcher(description);
+                    if(m.find()) {
+                        for (int i=0; i<m.groupCount(); i++){
+                            description = description.replace(m.group(0), "<a href=tel:\""+m.group(0)+"\"/>");
+                        }
+                    }*/
                     headers.add(new Header(title.replace(title.substring(title.indexOf("("), title.lastIndexOf(")")+1), ""),
                             title.substring(title.indexOf("(")+1, title.lastIndexOf(")")),
                             description.substring(description.indexOf("<img src=")+10, description.indexOf("\" ")),

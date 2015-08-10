@@ -1,11 +1,11 @@
 package com.example.mitsichury.firstwebservicegetinformation;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,13 +14,12 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 
-public class MainActivity extends Activity{
+public class MainActivity extends AppCompatActivity {
 
     ExpandableListAdapter listAdapter;
     ArrayList<Header> listData;
@@ -41,7 +40,7 @@ public class MainActivity extends Activity{
     Comparator triParParution = new Comparator<Header>() {
         @Override
         public int compare(Header lhs, Header rhs) {
-            return (lhs.getDateParution().before(rhs.getDateParution()))?-1:1;
+            return (lhs.getDateParution().before(rhs.getDateParution()))?1:-1;
         }
     };
 
@@ -51,6 +50,8 @@ public class MainActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         imgV = (ImageView)findViewById(R.id.imgViewChargement);
         progressBar = (ProgressBar)findViewById(R.id.pgBar);
 
@@ -59,10 +60,6 @@ public class MainActivity extends Activity{
             @Override
             public void run() {
                 prepareData();
-                listAdapter = new ExpandableListAdapter(getApplicationContext(), listData);
-                expLv.setAdapter(listAdapter);
-                imgV.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
             }
         };
 
@@ -81,7 +78,7 @@ public class MainActivity extends Activity{
             imgV.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             listData = (ArrayList<Header>) savedInstanceState.getSerializable("HEADER");
-            listAdapter = new ExpandableListAdapter(getApplicationContext(), listData);
+            listAdapter = new ExpandableListAdapter(this, listData);
             expLv.setAdapter(listAdapter);
         }
     }
@@ -108,9 +105,25 @@ public class MainActivity extends Activity{
         //Toast.makeText(getApplicationContext(), "DL", Toast.LENGTH_SHORT).show();
         final ParserXML obj = new ParserXML("http://www.zenithlimoges.com/?rss");
         obj.dlXMLfile();
-        while (!obj.isParsingComplete());
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(!obj.isParsingComplete()){handler.postDelayed(this, 100);}
+                    else{
+                        listData = obj.getData();
+                        Collections.sort(listData, triParShow);
+                        listAdapter = new ExpandableListAdapter(getApplicationContext(), listData);
+                        expLv.setAdapter(listAdapter);
+                        imgV.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+                    }
+            }
+        }, 100);
+/*        while (!obj.isParsingComplete());
+
         listData = obj.getData();
-        Collections.sort(listData, triParShow);
+        Collections.sort(listData, triParShow);*/
     }
 
     @Override

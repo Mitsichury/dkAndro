@@ -23,13 +23,16 @@ Rotation screen FIX
 Sort by release information OK
 App freeze at start up (need to rewrite XML parse in AsyncTask) Fix but strangely for now
 Problem with XML <pubDate> need to rewrite XML parse FIX
+Add to book button OK
 
 PROBLEMS
-Detect Number phone and make a link
-Add to book button +/-
+Detect Number phone and make a link -> Problems os intent flags 
+LINK TO PAGE WITH XML PULL PARSER DOESN'T WORK
 
 Need To implement
 Instant search
 display price or at least a link button
 
+
+Beta 1.0 (Incoming : when all functionnalities are implemented)
 

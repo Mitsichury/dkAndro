@@ -36,4 +36,13 @@
         android:layout_toEndOf="@+id/imageView"
         android:paddingLeft="5dp"
         android:textColor="#ff000000" />
+
+    <ImageButton
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/imgButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="@android:drawable/ic_menu_day"
+         />
 </RelativeLayout>
