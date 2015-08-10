@@ -18,7 +18,7 @@ Sort by event date OK
 
 
 PROBLEMS
-onSavedInstanceState when quit -> crash
+onSavedInstanceState when quit FIX
 App freeze at start up (need to rewrite XML parse in AsyncTask)
 Probleme with XML <pubDate> need to rewrite XML parse
 
