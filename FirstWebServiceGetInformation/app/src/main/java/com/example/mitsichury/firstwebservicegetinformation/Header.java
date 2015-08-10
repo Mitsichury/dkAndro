@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -20,7 +22,7 @@ import java.util.Date;
 /**
  * Created by MITSICHURY on 07/08/2015.
  */
-public class Header implements Serializable{
+public class Header implements Parcelable{
     private String title;
     private Date date;
     private Date dateParution;
@@ -126,7 +128,53 @@ public class Header implements Serializable{
         return dateParution;
     }
 
-    private class AsyncDl extends AsyncTask implements Serializable{
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(childDescription);
+        dest.writeString(linkToImage);
+        dest.writeString(linkToPage);
+        dest.writeString(title);
+        dest.writeValue(image);
+        
+        dest.writeValue(date);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private class AsyncDl extends AsyncTask {
 
         @Override
         protected Bitmap doInBackground(Object[] params) {

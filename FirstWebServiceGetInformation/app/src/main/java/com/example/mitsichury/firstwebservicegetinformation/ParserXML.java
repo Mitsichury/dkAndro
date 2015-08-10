@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by MITSICHURY on 07/08/2015.
  */
-public class ParserXML implements Serializable{
+public class ParserXML {
     private String title = null;
     private String link = null;
     private String date = null;
@@ -146,5 +146,5 @@ public class ParserXML implements Serializable{
     boolean isParsingComplete(){
         return this.parsingComplete;
     }
-    
+
 }

@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class MainActivity extends Activity implements Serializable{
+public class MainActivity extends Activity{
 
     ExpandableListAdapter listAdapter;
     ArrayList<Header> listData;
@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements Serializable{
     @Override
     protected void onSaveInstanceState(Bundle savedInstance) {
         super.onSaveInstanceState(savedInstance);
-        savedInstance.putSerializable("HEADER", listData);
+        if(listData != null || listData.isEmpty()){savedInstance.putSerializable("HEADER", listData);}
     }
 
     @Override

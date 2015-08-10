@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by MITSICHURY on 07/08/2015.
  */
-public class ExpandableListAdapter extends BaseExpandableListAdapter implements Serializable{
+public class ExpandableListAdapter extends BaseExpandableListAdapter{
     /**
      * A Custom adapter to create Parent view (Used grouprow.xml) and Child View((Used childrow.xml).
      */
