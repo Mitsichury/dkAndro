@@ -11,14 +11,17 @@
         android:id="@+id/expandableLv"
         android:layout_below="@+id/imageView2"
         android:layout_alignParentStart="true"
+        android:divider="#01000000"
         /><!--android:groupIndicator="@drawable/indicator"-->
 
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="100dp"
+        android:paddingBottom="10dp"
         android:id="@+id/imageView2"
-        android:layout_alignParentStart="true"
-        android:src="@drawable/bandeau" />
+        android:src="@mipmap/bandeau"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,9 +29,16 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="ZENITH LIMOGES"
         android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:textColor="#ff000000" />
+        android:textColor="#ff000000"
+        android:textSize="20dp"
+        android:paddingTop="20dp"
+        android:paddingLeft="10dp"
+        android:shadowColor="#ff000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="3"
+        android:layout_below="@+id/imgViewChargement"
+        android:layout_toEndOf="@+id/imgViewChargement" />
 
     <ImageView
         android:layout_width="fill_parent"
@@ -37,7 +47,8 @@
         android:background="#f000"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:src="@drawable/load" />
+        android:src="@mipmap/load"
+        />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"

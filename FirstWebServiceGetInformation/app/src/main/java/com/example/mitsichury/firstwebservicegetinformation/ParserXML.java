@@ -48,7 +48,7 @@ public class ParserXML {
         String text = null;
 
         try {
-            while (myParser.getName()==null || !myParser.getName().equals("item")){myParser.next();}
+            //while (myParser.getName()==null || !myParser.getName().equals("item")){myParser.next();Log.i("myParser", ""+myParser.getName()+" "+myParser.getEventType());}
             event = myParser.getEventType();
 
             while (event != XmlPullParser.END_DOCUMENT) {
@@ -63,11 +63,13 @@ public class ParserXML {
                         break;
 
                     case XmlPullParser.END_TAG:
-                        //Log.i("parseName", name);
+                        if(name.equals("item")){link=null;}
+                        Log.i("parseName", name);
                         if (name.equals("title")) {
                             title = text;
                         } else if (name.equals("link")) {
                             link = text;
+                            Log.i("link", ""+link);
                         } else if (name.equals("description")) {
                             description = text;
                         } else if(name.equals("pubDate")) {
@@ -77,9 +79,9 @@ public class ParserXML {
                 }
 
                 event = myParser.next();
-                if(title != null && description!= null){
-                    Log.i("parseName", title + " " + link);
-                    Log.i("description", description);
+                if(title != null && description!= null && link!= null) {
+                    //Log.i("parseName", title + " " + link);
+                    //Log.i("description", description);
                     /*Pattern p = Pattern.compile("([0-9]{2}[ .-]){4}[0-9]{2}");
 
                     Matcher m = p.matcher(description);
@@ -88,17 +90,18 @@ public class ParserXML {
                             description = description.replace(m.group(0), "<a href=tel:\""+m.group(0)+"\"/>");
                         }
                     }*/
-                    headers.add(new Header(title.replace(title.substring(title.indexOf("("), title.lastIndexOf(")")+1), ""),
-                            title.substring(title.indexOf("(")+1, title.lastIndexOf(")")),
-                            description.substring(description.indexOf("<img src=")+10, description.indexOf("\" ")),
+                    headers.add(new Header(title.replace(title.substring(title.indexOf("("), title.lastIndexOf(")") + 1), ""),
+                            title.substring(title.indexOf("(") + 1, title.lastIndexOf(")")),
+                            description.substring(description.indexOf("<img src=") + 10, description.indexOf("\" ")),
                             Html.fromHtml(description.replaceAll("<img.+?>", "")).toString(),
                             link,
                             date
                     ));
-                    title=null;
-                    date=null;
-                    description=null;
-                    link=null;
+                    Log.i("HEADER-PARSE", headers.get(headers.size() - 1).toString());
+                    title = null;
+                    date = null;
+                    description = null;
+                    link = null;
                 }
             }
 
@@ -110,7 +113,7 @@ public class ParserXML {
         }
     }
 
-    void dlXMLfile(){
+       void dlXMLfile(){
         Log.i("parser", "Entry dl");
         Thread t = new Thread(new Runnable() {
             @Override

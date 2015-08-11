@@ -2,17 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_marginTop="0dp">
 
     <TextView
         android:id="@+id/tv_description"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
         android:textSize="10dip"
         android:paddingTop="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:textColor="#ff000000"
-        android:autoLink="phone|web"/>
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="#ffffffff"/>
+       <!-- android:autoLink="phone|web"/> -->
 
 </LinearLayout>

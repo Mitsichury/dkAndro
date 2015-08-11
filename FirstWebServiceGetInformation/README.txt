@@ -25,14 +25,10 @@ App freeze at start up (need to rewrite XML parse in AsyncTask) Fix but strangel
 Problem with XML <pubDate> need to rewrite XML parse FIX
 Add to book button OK
 
-PROBLEMS
-Detect Number phone and make a link -> Problems os intent flags 
-LINK TO PAGE WITH XML PULL PARSER DOESN'T WORK
-
-Need To implement
-Instant search
-display price or at least a link button
-
+Alpha 4.0
+PARSER fix
+Number phone + link clickable OK
+Detect Number phone and make a link Fix
 
 Beta 1.0 (Incoming : when all functionnalities are implemented)
 

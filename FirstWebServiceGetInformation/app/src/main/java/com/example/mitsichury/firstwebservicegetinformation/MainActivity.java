@@ -1,11 +1,13 @@
 package com.example.mitsichury.firstwebservicegetinformation;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -109,15 +111,16 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(!obj.isParsingComplete()){handler.postDelayed(this, 100);}
-                    else{
-                        listData = obj.getData();
-                        Collections.sort(listData, triParShow);
-                        listAdapter = new ExpandableListAdapter(getApplicationContext(), listData);
-                        expLv.setAdapter(listAdapter);
-                        imgV.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                    }
+                if (!obj.isParsingComplete()) {
+                    handler.postDelayed(this, 100);
+                } else {
+                    listData = obj.getData();
+                    Collections.sort(listData, triParShow);
+                    listAdapter = new ExpandableListAdapter(getApplicationContext(), listData);
+                    expLv.setAdapter(listAdapter);
+                    imgV.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
+                }
             }
         }, 100);
 /*        while (!obj.isParsingComplete());

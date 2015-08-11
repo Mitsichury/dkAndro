@@ -3,8 +3,10 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:weightSum="5">
+    android:padding="10dp"
+    android:weightSum="5"
+    android:background="@drawable/abc_popup_background_mtrl_mult"
+    android:layout_marginTop="10dp">
 
 
     <ImageView
