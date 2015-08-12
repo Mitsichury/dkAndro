@@ -32,3 +32,5 @@ Detect Number phone and make a link Fix
 
 Beta 1.0 (Incoming : when all functionnalities are implemented)
 
+Final version deployed
+
