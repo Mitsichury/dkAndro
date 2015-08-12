@@ -18,6 +18,5 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
         android:background="#ffffffff"/>
-       <!-- android:autoLink="phone|web"/> -->
 
 </LinearLayout>

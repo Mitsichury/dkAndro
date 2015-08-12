@@ -16,12 +16,16 @@
 
     <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:paddingBottom="10dp"
         android:id="@+id/imageView2"
         android:src="@mipmap/bandeau"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:baselineAlignBottom="false"
+        android:cropToPadding="false"
+        android:nestedScrollingEnabled="false"
+        android:scaleType="fitXY" />
 
     <TextView
         android:layout_width="wrap_content"

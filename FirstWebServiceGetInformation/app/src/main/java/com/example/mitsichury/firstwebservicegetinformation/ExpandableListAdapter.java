@@ -27,9 +27,6 @@ import java.util.regex.Pattern;
  * Created by MITSICHURY on 07/08/2015.
  */
 public class ExpandableListAdapter extends BaseExpandableListAdapter{
-    /**
-     * A Custom adapter to create Parent view (Used grouprow.xml) and Child View((Used childrow.xml).
-     */
 
     private LayoutInflater inflater;
     private ArrayList<Header> headers;
@@ -37,15 +34,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
 
     public ExpandableListAdapter(Context context, ArrayList<Header> headers)
     {
-        // Create Layout Inflator
+
         this.context = context;
         this.headers = headers;
-        //this.inflater = LayoutInflater.from(context);
+
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-
-    // This Function used to inflate parent rows view
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
@@ -53,10 +48,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
     {
         final Header parent = headers.get(groupPosition);
 
-        // Inflate grouprow.xml file for parent rows
         convertView = inflater.inflate(R.layout.list_group, parentView, false);
 
-        // Get grouprow.xml file elements and set values
         ((TextView) convertView.findViewById(R.id.tv_title)).setText(parent.getTitle());
 
         if(parent.getTitle().contains("Annul")){((TextView) convertView.findViewById(R.id.tv_title)).setTextColor(0xffaa0000);}
@@ -89,17 +82,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
         // Allow the group to be click
         addCalendar.setFocusable(false);
 
-
-
-
-         // TODO Make an asynchronous dl
         if (parent.getImage()==null){
             parent.setExpandableListAdapter(this);
-            //parent.startDlThumb();
         }
 
         image.setImageBitmap(parent.getImage());
-        //Log.i("EXP-IMG", ""+parent.getImage());
+
         return convertView;
     }
 
@@ -112,10 +100,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
         final Header parent = headers.get(groupPosition);
         final String child = parent.getChildDescription()+"Pour plus d'information : "+parent.getLinkToPage();
 
-        // Inflate childrow.xml file for child rows
         convertView = inflater.inflate(R.layout.list_item, parentView, false);
 
-        // Get childrow.xml file elements and set values
         TextView desc = (TextView) convertView.findViewById(R.id.tv_description);
 
         Pattern p = Pattern.compile("([0-9]{2}[ .-]){4}[0-9]{2}");
@@ -162,11 +148,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
         desc.setMovementMethod(LinkMovementMethod.getInstance());
         desc.setText(text, TextView.BufferType.SPANNABLE);
 
-        /*if(desc.getText().toString().length()==0) {
-            desc.setText(child);
-        }*/
-
-
         return convertView;
     }
 
@@ -174,25 +155,15 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
     @Override
     public Object getChild(int groupPosition, int childPosition)
     {
-        //Log.i("Childs", groupPosition+"=  getChild =="+childPosition);
         return headers.get(groupPosition).getChildDescription();
     }
 
-    //Call when child row clicked
     @Override
     public long getChildId(int groupPosition, int childPosition)
     {
-        /****** When Child row clicked then this function call *******/
-
-        //Log.i("Noise", "parent == "+groupPosition+"=  child : =="+childPosition);
-
-
-        //Toast.makeText(context, "Parent :" + groupPosition + " Child :" + childPosition, Toast.LENGTH_LONG).show();
-
         return childPosition;
     }
 
-    // TODO make a function to calculate the number of child if layout evolve
     @Override
     public int getChildrenCount(int groupPosition)
     {
@@ -203,8 +174,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
     @Override
     public Object getGroup(int groupPosition)
     {
-        Log.i("Parent", groupPosition + "=  getGroup ");
-
         return headers.get(groupPosition);
     }
 
@@ -214,31 +183,15 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
         return headers.size();
     }
 
-    //Call when parent row clicked
-    // TODO : understand the function
     @Override
     public long getGroupId(int groupPosition)
     {
-        /*Log.i("Parent", groupPosition+"=  getGroupId "+ParentClickStatus);
-
-        if(groupPosition==2 && ParentClickStatus!=groupPosition){
-
-            //Alert to user
-            Toast.makeText(getApplicationContext(), "Parent :"+groupPosition ,
-                    Toast.LENGTH_LONG).show();
-        }
-
-        ParentClickStatus=groupPosition;
-        if(ParentClickStatus==0)
-            ParentClickStatus=-1;*/
-
         return groupPosition;
     }
 
     @Override
     public void notifyDataSetChanged()
     {
-        // Refresh List rows
         super.notifyDataSetChanged();
     }
 

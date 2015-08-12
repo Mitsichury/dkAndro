@@ -32,23 +32,29 @@ public class ParserXML {
 
     ArrayList<Header> headers = new ArrayList<>();
 
-    // Don't know how it works ???
-    // TODO : understand
-    private XmlPullParserFactory xmlFactoryObject;
-    public volatile boolean parsingComplete = false;
 
+    private XmlPullParserFactory xmlFactoryObject; // Allow to create new instance a a parser
+    public volatile boolean parsingComplete = false; // volatile means that the class can be used by multiple thraed and so not save this boolean in the main memory
+
+    /**
+     * Contructor with the link to dl
+     * @param url
+     *      The link
+     */
     public ParserXML(String url){
-        this.urlString = url;;
-        Log.i("parser", "entry");
+        this.urlString = url;
     }
 
+    /**
+     * The parser
+     * @param myParser
+     *      The XmlPullParser wich contains the XML data to parse
+     */
     public void parse(XmlPullParser myParser){
-        Log.i("parser", "Entry parse");
         int event;
         String text = null;
 
         try {
-            //while (myParser.getName()==null || !myParser.getName().equals("item")){myParser.next();Log.i("myParser", ""+myParser.getName()+" "+myParser.getEventType());}
             event = myParser.getEventType();
 
             while (event != XmlPullParser.END_DOCUMENT) {
@@ -69,7 +75,6 @@ public class ParserXML {
                             title = text;
                         } else if (name.equals("link")) {
                             link = text;
-                            Log.i("link", ""+link);
                         } else if (name.equals("description")) {
                             description = text;
                         } else if(name.equals("pubDate")) {
@@ -80,16 +85,6 @@ public class ParserXML {
 
                 event = myParser.next();
                 if(title != null && description!= null && link!= null) {
-                    //Log.i("parseName", title + " " + link);
-                    //Log.i("description", description);
-                    /*Pattern p = Pattern.compile("([0-9]{2}[ .-]){4}[0-9]{2}");
-
-                    Matcher m = p.matcher(description);
-                    if(m.find()) {
-                        for (int i=0; i<m.groupCount(); i++){
-                            description = description.replace(m.group(0), "<a href=tel:\""+m.group(0)+"\"/>");
-                        }
-                    }*/
                     headers.add(new Header(title.replace(title.substring(title.indexOf("("), title.lastIndexOf(")") + 1), ""),
                             title.substring(title.indexOf("(") + 1, title.lastIndexOf(")")),
                             description.substring(description.indexOf("<img src=") + 10, description.indexOf("\" ")),
@@ -97,7 +92,6 @@ public class ParserXML {
                             link,
                             date
                     ));
-                    Log.i("HEADER-PARSE", headers.get(headers.size() - 1).toString());
                     title = null;
                     date = null;
                     description = null;
@@ -114,11 +108,11 @@ public class ParserXML {
     }
 
        void dlXMLfile(){
-        Log.i("parser", "Entry dl");
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    // Set the connection
                     URL url = new URL(urlString);
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                     connection.setReadTimeout(10000 /* milliseconds */);
@@ -128,17 +122,18 @@ public class ParserXML {
 
                     connection.connect();
 
+                    // Get stream
                     InputStream stream = connection.getInputStream();
 
+                    // Set the parser
                     xmlFactoryObject = XmlPullParserFactory.newInstance();
                     XmlPullParser myparse = xmlFactoryObject.newPullParser();
 
                     myparse.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
                     myparse.setInput(stream, null);
 
-                    Log.i("parser", "call parse"+myparse.getText());
+                    // Parse the file
                     parse(myparse);
-                    Log.i("parser", "end call parse");
 
                     stream.close();
 

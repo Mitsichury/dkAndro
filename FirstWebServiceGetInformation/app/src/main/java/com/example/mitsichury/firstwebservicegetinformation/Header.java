@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by MITSICHURY on 07/08/2015.
@@ -63,20 +64,22 @@ public class Header implements Parcelable{
     }
 
     /**
-     *  Constructor
+     *  Constructor, start the asynck downloading of thumbnails automatically at the instanciation
      * @param title
      *      Title
      * @param date
      *      Date of publication
      * @param linkToImage
- *      Link to the image
+     *     Link to the image
      * @param childDescription
+     *      Show description
      * @param linkToPage
+     *      Link to web Page
      */
     public Header(String title, String date, String linkToImage, String childDescription, String linkToPage, String dateParution) {
 
-        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
-        SimpleDateFormat formaterDatePub = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy", Locale.FRENCH);
+        SimpleDateFormat formaterDatePub = new SimpleDateFormat("yyyy-MM-dd", Locale.FRENCH);
 
         Date dateTmp = null;
         try {
@@ -88,7 +91,7 @@ public class Header implements Parcelable{
         this.date = dateTmp;
         this.linkToImage = linkToImage;
         this.childDescription = childDescription;
-        //Log.i("TITLE", childDescription.toString());
+
         this.linkToPage = linkToPage;
         startDlThumb();
 
@@ -104,7 +107,7 @@ public class Header implements Parcelable{
         }
 
         this.dateParution = dateTmp;
-        Log.i("DATE-PARU", String.valueOf(this.dateParution)+ " " + dateParution);
+
     }
 
     public String getChildDescription() {
@@ -135,24 +138,14 @@ public class Header implements Parcelable{
         return dateParution;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /**
+     * Method which specify what has to be save
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(childDescription);
@@ -160,41 +153,23 @@ public class Header implements Parcelable{
         dest.writeString(linkToPage);
         dest.writeString(title);
         dest.writeValue(image);
-
         dest.writeValue(date);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private class AsyncDl extends AsyncTask {
 
         @Override
         protected Bitmap doInBackground(Object[] params) {
-            //Log.i("ASYNC", "DEBUT de "+ title);
             return dlBitmap((String) params[0]);
         }
 
         @Override
         protected void onPostExecute(Object o) {
-            //super.onPostExecute(o);
             image = ((Bitmap)o);
+            // If the expandableListAdapter doesn't exist means that the adapter is not created and will take the bitmap automatically
+            // Else the adpater already exist and we need to notify that the data has changed
             if(expandableListAdapter != null)expandableListAdapter.notifyDataSetChanged();
-            //Log.i("ASYNC", "FIN de "+title+" "+((Bitmap)o==null));
         }
 
         private Bitmap dlBitmap(String linkToImage) {
@@ -204,7 +179,6 @@ public class Header implements Parcelable{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.i("DLL", "DLL de "+title+" "+(bmp==null));
             return bmp;
         }
     }
