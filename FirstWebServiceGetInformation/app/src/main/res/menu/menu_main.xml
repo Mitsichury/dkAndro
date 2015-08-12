@@ -4,4 +4,5 @@
     <item android:id="@+id/action_settings" android:title="Tri date parution"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:title="Tri date show"/>
+    <item android:title="A propos"/>
 </menu>

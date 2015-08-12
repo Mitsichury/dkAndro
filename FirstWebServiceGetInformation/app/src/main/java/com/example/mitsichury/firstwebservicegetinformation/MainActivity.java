@@ -1,8 +1,11 @@
 package com.example.mitsichury.firstwebservicegetinformation;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Header> listData;
     ExpandableListView expLv;
     ImageView imgV;
+    Menu menu;
 
     Handler handler;
     Runnable run;
@@ -95,11 +100,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(listAdapter == null){
-            /*prepareData();
-            listAdapter = new ExpandableListAdapter(this, listData);
-            expLv.setAdapter(listAdapter);*/
-            handler.postDelayed(run, 100);
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mData = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+
+        if (mWifi.isConnected() || mData.isConnected()) {
+            if(listAdapter == null){
+                /*prepareData();
+                listAdapter = new ExpandableListAdapter(this, listData);
+                expLv.setAdapter(listAdapter);*/
+                handler.postDelayed(run, 100);
+            }
+        }else{
+            Toast.makeText(getApplicationContext(), "Pas deconnexion internet ! ", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -120,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     expLv.setAdapter(listAdapter);
                     imgV.setVisibility(View.GONE);
                     progressBar.setVisibility(View.GONE);
+                    menu.setGroupVisible(0, true);
                 }
             }
         }, 100);
@@ -133,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.setGroupVisible(0, false);
+        this.menu = menu;
         return true;
     }
 
@@ -149,7 +167,9 @@ public class MainActivity extends AppCompatActivity {
             Collections.sort(listData, triParParution);
             listAdapter.notifyDataSetChanged();
             return true;
-        }else{
+        }else if(name.equals("A propos")){
+            startActivity(new Intent(this, About.class));
+        }else {
             Collections.sort(listData, triParShow);
             listAdapter.notifyDataSetChanged();
         }
