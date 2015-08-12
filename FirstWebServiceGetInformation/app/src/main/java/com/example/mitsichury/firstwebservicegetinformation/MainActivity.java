@@ -186,13 +186,13 @@ public class MainActivity extends AppCompatActivity {
         ///String name = item.getTitle().toString();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.string.sort_by_feed_app) {
+        if (id == R.id.sort_by_feed_app) {
             Collections.sort(listData, sortByRealease);
             listAdapter.notifyDataSetChanged();
             return true;
-        } else if (id == R.string.about) {
+        } else if (id == R.id.about) {
             startActivity(new Intent(this, About.class));
-        } else if (id == R.string.sort_by_show) {
+        } else if (id == R.id.sort_by_show) {
             Collections.sort(listData, sortByShowDate);
             listAdapter.notifyDataSetChanged();
         }
