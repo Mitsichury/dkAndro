@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -93,11 +94,27 @@ public class MainActivity extends AppCompatActivity {
 
         // If the screen rotate, do not need to reload and dl all the data
         if (savedInstanceState != null) {
-            imgV.setVisibility(View.GONE); // Launch pic
-            progressBar.setVisibility(View.GONE); // Lauch progBar
             listData = (ArrayList<Header>) savedInstanceState.getSerializable("HEADER");
-            listAdapter = new ExpandableListAdapter(this, listData);
-            expLv.setAdapter(listAdapter);
+            if (listData != null && listData.size() > 0) {
+                imgV.setVisibility(View.GONE); // Launch pic
+                progressBar.setVisibility(View.GONE); // Launch progBar
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(menu==null){
+                            handler.postDelayed(this, 100);
+                        }else{
+                            menu.setGroupVisible(0, true);
+                        }
+                    }
+                }, 100);
+
+                Log.i("1234", "" + listData.size());
+                listAdapter = new ExpandableListAdapter(this, listData);
+                expLv.setAdapter(listAdapter);
+            }else {
+                listData = null;
+            }
         }
     }
 
@@ -107,8 +124,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle savedInstance) {
         super.onSaveInstanceState(savedInstance);
-        if (listData != null || listData.isEmpty()) {
-            savedInstance.putSerializable("HEADER", listData);
+        if (listData != null) {
+            if(!listData.isEmpty()){
+                savedInstance.putSerializable("HEADER", listData);
+            }
         }
     }
 
@@ -138,8 +157,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void prepareData() {
         // Create the parser
-        final ParserXML obj = new ParserXML("http://www.zenithlimoges.com/?rss");
+        final ParserXML obj = new ParserXML("http://vrac.mitsi.ovh/rssZenith.xml");//("http://www.zenithlimoges.com/?rss");
         // DL XML File
+        Log.i("1234", "dl");
         obj.dlXMLfile();
 
         // While the File is not dl and parse the app wait (new Runnable to avoid freezing with a while)
@@ -149,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!obj.isParsingComplete()) {
                     handler.postDelayed(this, 100);
                 } else {
+                    Log.i("1234", "finish parse");
                     // Get the data from xml file
                     listData = obj.getData();
                     // Sort by showcase date

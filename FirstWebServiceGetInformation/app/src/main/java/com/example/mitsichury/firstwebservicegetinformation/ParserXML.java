@@ -51,6 +51,7 @@ public class ParserXML {
      *      The XmlPullParser wich contains the XML data to parse
      */
     public void parse(XmlPullParser myParser){
+        Log.i("1234","parseBegin");
         int event;
         String text = null;
 
@@ -70,7 +71,7 @@ public class ParserXML {
 
                     case XmlPullParser.END_TAG:
                         if(name.equals("item")){link=null;}
-                        Log.i("parseName", name);
+                        Log.i("parseName", name+" "+text);
                         if (name.equals("title")) {
                             title = text;
                         } else if (name.equals("link")) {
@@ -85,13 +86,26 @@ public class ParserXML {
 
                 event = myParser.next();
                 if(title != null && description!= null && link!= null) {
+                    Log.i("1234", "t"+title);
+                    Log.i("1234", "d"+description);
+                    Log.i("1234", "l"+link);
+
                     headers.add(new Header(title.replace(title.substring(title.indexOf("("), title.lastIndexOf(")") + 1), ""),
                             title.substring(title.indexOf("(") + 1, title.lastIndexOf(")")),
-                            description.substring(description.indexOf("<img src=") + 10, description.indexOf("\" ")),
+                            description.substring(description.indexOf("<img src=") + 10,
+                                    description.indexOf("\" ")),
                             Html.fromHtml(description.replaceAll("<img.+?>", "")).toString(),
                             link,
                             date
                     ));
+
+                    /*headers.add(new Header(title.replace(title.substring(title.indexOf("("), title.lastIndexOf(")") + 1), ""),
+                            title.substring(title.indexOf("(") + 1, title.lastIndexOf(")")),
+                            "http://www.mitsi.ovh/img/tof.jpg",
+                            "azertyuiop",
+                            link,
+                            date));*/
+
                     title = null;
                     date = null;
                     description = null;
@@ -112,18 +126,24 @@ public class ParserXML {
             @Override
             public void run() {
                 try {
+                    Log.i("1234","setConnexion" + urlString);
                     // Set the connection
                     URL url = new URL(urlString);
+                    Log.i("1234","openConnexion"+url.toString());
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-                    connection.setReadTimeout(10000 /* milliseconds */);
-                    connection.setConnectTimeout(15000 /* milliseconds */);
+                    Log.i("1234",""+connection.toString());
+                    connection.setReadTimeout(10000 /* milliseconds */); // If no answer after 10s given up
+                    connection.setConnectTimeout(15000 /* milliseconds */); // Wait connection for 15s
                     connection.setRequestMethod("GET");
                     connection.setDoInput(true);
 
+                    Log.i("1234","tryConnexion");
                     connection.connect();
+                    Log.i("1234", "Connected");
 
                     // Get stream
                     InputStream stream = connection.getInputStream();
+                    Log.i("1234","Stream"+stream.toString());
 
                     // Set the parser
                     xmlFactoryObject = XmlPullParserFactory.newInstance();
